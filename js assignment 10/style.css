@@ -1,0 +1,20 @@
+.borderRadius {
+    border-radius: 10px;
+    border: 1px solid rgb(236, 232, 232);
+}
+.blueColor {
+    background-color: #3498db;
+}
+.overflowHidden {
+    overflow: hidden;
+}
+.whiteText {
+    color: white;
+}
+.topGap {
+    margin-top: 200px;
+}
+.textMargin {
+    margin-left: 50px;
+    margin-right: 50px;
+}

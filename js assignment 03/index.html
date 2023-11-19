@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Javascript Assignment 03</title>
+
+    <script>
+        let items = ["cake", "apple", "cookie", "chips", "patties"];
+        console.log(items);
+
+        function searchInArray(strArray) {
+            let search = document.getElementById('find').value;
+            console.log(search);
+
+            const result = items.find((name) => name === search.toLowerCase());
+            if (result == undefined) {
+                alert('Not found');
+            }
+            else {
+                alert('Item Found');
+            }
+        }
+        console.log(searchInArray(items));
+
+    </script>
+
+</head>
+
+<body>
+    <h1>Javascript Assignment 03</h1>
+    <input id="find" type="text" />
+    <button onclick="searchInArray()">Search</button>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

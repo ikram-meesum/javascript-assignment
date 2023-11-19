@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript Assignment 11</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.20/dist/sweetalert2.all.min.js"></script>
+    <link href="
+https://cdn.jsdelivr.net/npm/sweetalert2@11.7.20/dist/sweetalert2.min.css
+" rel="stylesheet">
+    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" /> -->
+    <link href="style.css" rel="stylesheet" />
+
+
+</head>
+
+<body class="">
+    <nav class="navbar bg-body-tertiary" data-bs-theme="dark">
+        <div class="container-fluid">
+            <span class="navbar-brand mb-0 h1">Firebase Authentication</span>
+        </div>
+    </nav>
+
+    <!-- end navbar -->
+
+    <section class="">
+        <h2 class="mt-3 text-center mb-3 text-primary">Firebase Authentication</h2>
+        <h4 class="mt-3 text-center mb-3 text-success">Login User</h4>
+        <div class="row mt-3">
+
+            <div class="col-md-3"></div>
+            <div class="col-md-6">
+                <form class="row g-3" id="frm">
+                    <div class="col-md-12">
+                        <label for="inputAddress" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" required placeholder="Enter valid email">
+                    </div>
+                    <div class="col-md-12">
+                        <label for="inputAddress2" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="password" required minlength="6"
+                            placeholder="Enter correct password">
+                    </div>
+
+                    <div class="col-12">
+                        <button type="submit" id="btnsubmit" class="btn btn-primary">Login Please</button>
+                        <a href="index.html" class="btn btn-success">Register for new user.</a>
+                    </div>
+                </form>
+            </div>
+            <div class="col-md-3"></div>
+
+
+
+        </div>
+    </section>
+    <br /><br />
+
+    <script src="amagiloader.js"></script>
+
+    <script type="module">
+
+        //import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js";
+        //import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-analytics.js";
+        import { getDatabase, get, ref, child } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-database.js";
+
+        import { getAuth, signInWithCustomToken, signInWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/10.5.2/firebase-auth.js'
+        ////////////////////
+
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-analytics.js";
+        // TODO: Add SDKs for Firebase products that you want to use
+        // https://firebase.google.com/docs/web/setup#available-libraries
+
+        // Your web app's Firebase configuration
+        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+        const firebaseConfig = {
+            apiKey: "AIzaSyAWqTOTFBQDoX_nAf5Xk4ZErtkrQgzFRDg",
+            authDomain: "ikram-test-f26b1.firebaseapp.com",
+            databaseURL: "https://ikram-test-f26b1-default-rtdb.firebaseio.com",
+            projectId: "ikram-test-f26b1",
+            storageBucket: "ikram-test-f26b1.appspot.com",
+            messagingSenderId: "67751504494",
+            appId: "1:67751504494:web:00b82047ef26ccd650d47f",
+            measurementId: "G-9YMT7LJHGT"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+
+        const db = getDatabase();
+        const auth = getAuth(app);
+        const dbRef = ref(db);
+
+        let form = document.getElementById('frm');
+
+        let signInUser = (e) => {
+            e.preventDefault();
+
+            let email = document.getElementById('email').value;
+            let password = document.getElementById('password').value;
+
+            console.log('test', email, password);
+
+            signInWithEmailAndPassword(auth, email, password)
+                .then((credential) => {
+                    console.log(credential);
+                    Swal.fire({
+                        icon: "success",
+                        title: "Login Successfully.",
+                        text: "Firebase user credential pass successfully!",
+                        //footer: '<a href="">Why do I have this issue?</a>'
+                    });
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html';
+                    }, 5000)
+                })
+                .catch((error) => {
+                    console.log(error);
+                    Swal.fire({
+                        icon: "error",
+                        title: "Invalid username or password.",
+                        text: error.message,
+                        //footer: '<a href="">Why do I have this issue?</a>'
+                    });
+                })
+        }
+        form.addEventListener('submit', signInUser);
+
+    </script>
+
+</body>
+
+</html>
