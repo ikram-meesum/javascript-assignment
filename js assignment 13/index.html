@@ -1,0 +1,179 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body>
+    <header class="flex items-center justify-between py-4 bg-pink-600 text-white">
+        <div>
+            <a href="/">
+                <div class="flex items-center justify-between">
+                    <div class="text-2xl font-semibold sm:block ml-10">foodpanda</div>
+                </div>
+            </a>
+        </div>
+        <div class="flex items-center space-x-4 leading-5 sm:space-x-6 mr-10">
+            <a class="font-medium sm:block text-white border-white" href="/blog">Blog</a>
+            <a class="font-medium sm:block text-white" href="/tags">Tags</a>
+            <a class="font-medium sm:block text-white" href="/projects">Projects</a>
+            <a class="font-medium sm:block text-white" href="/about">About</a>
+        </div>
+    </header>
+    <!-- END NAVBAR -->
+
+    <!-- start sidebar -->
+    <main class="flex bg-gray-100">
+        <div class="text-5xl text-gray-800 ml-12 mr-30 text-bold leading-[55px] mt-20">
+            Food and groceries delivery<br /> from Karachi best restaurants<br /> and shops
+        </div>
+        <div class="flex pl-15 justify-center items-center">
+            <img src="images/refresh-hero-city-pk.webp" class="" height="500px" width="450px" />
+        </div>
+    </main>
+
+    <div class="mt-10">
+        <a href="/" class="text-pink-600 ml-12 mt-30">Homepage</a> > Karachi
+    </div>
+
+    <main class="flex">
+        <section>
+            <div class="flex flex-auto bg-gray-50 text-gray-800 ml-5">
+                <div class="flex flex-col w-48 bg-white h-full">
+
+                    <div class="overflow-y-auto overflow-x-hidden flex-grow">
+                        <ul class="flex flex-col py-4 space-y-1">
+                            <li class="px-3">
+                                <div class="flex flex-row items-center h-8">
+                                    <div class="text-sm font-light tracking-wide font-semibold text-gray-800">Food Menu
+                                    </div>
+                                </div>
+                            </li>
+                            <section id="menu">
+
+                            </section>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="ml-2">
+            <div class="grid grid-cols-3 gap-4 mr-5">
+                <!-- second colum -->
+                <div id="card">
+
+                </div>
+                <!-- end card -->
+
+
+            </div> <!-- END GRID -->
+
+
+
+        </section>
+    </main>
+
+    <h1 class="text-3xl font-bold underline">
+        Hello world!
+    </h1>
+
+    <script src="./dashboard/amagiloader.js"></script>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-app.js";
+        //import { onValue } from "https://www.gstatic.com/firebasejs/10.5.2/firebase/database.js";
+        import { getFirestore, collection, addDoc, doc, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAWqTOTFBQDoX_nAf5Xk4ZErtkrQgzFRDg",
+            authDomain: "ikram-test-f26b1.firebaseapp.com",
+            databaseURL: "https://ikram-test-f26b1-default-rtdb.firebaseio.com",
+            projectId: "ikram-test-f26b1",
+            storageBucket: "ikram-test-f26b1.appspot.com",
+            messagingSenderId: "67751504494",
+            appId: "1:67751504494:web:00b82047ef26ccd650d47f",
+            measurementId: "G-9YMT7LJHGT"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const dbFStore = getFirestore(app);
+
+
+        let optionInput = document.getElementById("menu");
+        let itemCard = document.getElementById('card');
+
+        const getCategory = async () => {
+            AmagiLoader.show();
+
+            const docSnap = await getDocs(collection(dbFStore, 'category'));
+            console.log('len :', await docSnap.length);
+            var content = '';
+
+            await docSnap.forEach((doc, index) => {
+                let v = doc.data();
+                content += `<li>
+                                <a href="#"
+                                    class="relative flex flex-row items-center h-11 focus:outline-none hover:bg-gray-50 text-gray-600 hover:text-gray-800 border-l-4 border-transparent hover:border-pink-600 pr-6">
+                                    <span class="ml-2 text-sm tracking-wide truncate">${v.todo}</span>
+                                </a>
+                            </li>`
+            });
+            AmagiLoader.hide();
+            optionInput.innerHTML = content;
+        }
+        getCategory();
+
+
+        // start get items
+
+        const getItems = async () => {
+            AmagiLoader.show();
+
+            const docSnap = await getDocs(collection(dbFStore, 'items'));
+            console.log('len :', await docSnap.length);
+            var card = '';
+
+            await docSnap.forEach((doc, index) => {
+                let v = doc.data();
+                card += `<div
+                        class="block rounded-lg bg-white shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] dark:bg-neutral-700">
+                        <div class="relative overflow-hidden bg-cover bg-no-repeat" data-te-ripple-init
+                            data-te-ripple-color="light">
+                            <img class="rounded-t-lg" src="https://tecdn.b-cdn.net/img/new/standard/nature/186.jpg"
+                                alt="" />
+                            <a href="#!">
+                                <div
+                                    class="absolute bottom-0 left-0 right-0 top-0 h-full w-full overflow-hidden bg-[hsla(0,0%,98%,0.15)] bg-fixed opacity-0 transition duration-300 ease-in-out hover:opacity-100">
+                                </div>
+                            </a>
+                        </div>
+                        <div class="p-6">
+                            <h5 class="mb-2 text-xl font-medium leading-tight text-neutral-800 dark:text-neutral-50">
+                                Card title
+                            </h5>
+                            <p class="mb-4 text-base text-neutral-600 dark:text-neutral-200">
+                                Some quick example text to build on the card title and make up the
+                                bulk of the card's content.
+                            </p>
+                            <button type="button"
+                                class="inline-block rounded bg-blue-900 px-6 pb-2 pt-2.5 font-medium uppercase leading-normal text-white shadow-[0_4px_9px_-4px_#3b71ca] transition duration-150 ease-in-out hover:bg-primary-600 hover:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.3),0_4px_18px_0_rgba(59,113,202,0.2)] focus:bg-primary-600 focus:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.3),0_4px_18px_0_rgba(59,113,202,0.2)] focus:outline-none focus:ring-0 active:bg-primary-700 active:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.3),0_4px_18px_0_rgba(59,113,202,0.2)] dark:shadow-[0_4px_9px_-4px_rgba(59,113,202,0.5)] dark:hover:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.2),0_4px_18px_0_rgba(59,113,202,0.1)] dark:focus:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.2),0_4px_18px_0_rgba(59,113,202,0.1)] dark:active:shadow-[0_8px_9px_-4px_rgba(59,113,202,0.2),0_4px_18px_0_rgba(59,113,202,0.1)]">
+                                Button
+                            </button>
+                        </div>
+                    </div>`
+            });
+            AmagiLoader.hide();
+            itemCard.innerHTML = card;
+        }
+        getItems();
+
+
+    </script>
+</body>
+
+</html>

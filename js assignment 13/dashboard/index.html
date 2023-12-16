@@ -1,0 +1,145 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body>
+    <header class="flex items-center justify-between py-4 bg-slate-900 text-white">
+        <div>
+            <a href="/">
+                <div class="flex items-center justify-between">
+                    <div class="text-2xl font-semibold sm:block ml-10">dashboard</div>
+                </div>
+            </a>
+        </div>
+        <div class="flex items-center space-x-4 leading-5 sm:space-x-6 mr-10">
+            <a class="font-medium sm:block text-white border-white" href="/dashboard/category.html">Category</a>
+            <a class="font-medium sm:block text-white" href="/dashboard/items.html">Items</a>
+            <!-- <a class="font-medium sm:block text-white" href="/projects">Projects</a>
+            <a class="font-medium sm:block text-white" href="/about">About</a> -->
+        </div>
+    </header>
+    <!-- END NAVBAR -->
+
+
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-app.js";
+        import { getFirestore, collection, addDoc, doc, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAWqTOTFBQDoX_nAf5Xk4ZErtkrQgzFRDg",
+            authDomain: "ikram-test-f26b1.firebaseapp.com",
+            databaseURL: "https://ikram-test-f26b1-default-rtdb.firebaseio.com",
+            projectId: "ikram-test-f26b1",
+            storageBucket: "ikram-test-f26b1.appspot.com",
+            messagingSenderId: "67751504494",
+            appId: "1:67751504494:web:00b82047ef26ccd650d47f",
+            measurementId: "G-9YMT7LJHGT"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const dbFStore = getFirestore(app);
+
+
+        let optionInput = document.getElementById("tbl");
+
+        const getCategory = async () => {
+            //const docRef = getDoc(dbFStore, 'todos', 'bEd57Ukqor3EPXRbQmaU');
+            const docSnap = await getDocs(collection(dbFStore, 'category'));
+            console.log('len :', await docSnap.length);
+
+            onValue(starCountRef, (snapshot) => {
+                const data = snapshot.val();
+                updateStarCount(postElement, data);
+            });
+
+            var content = '';
+
+            await docSnap.forEach((doc, index) => {
+                //console.log('ind: ', index);
+                let v = doc.data();
+                //allData.push({ ...doc.data(), id: doc.id });
+
+                content += `<tr class="bg-white border-b hover:bg-gray-100 odd:bg-white even:bg-gray-50">`;
+                content += `<td class="px-6 py-3"> ${doc.id} </td>`;
+                content += `<td class="px-6 py-2 font-medium text-gray-900"> ${v.todo} </td>`;
+                content += `<td class="px-6 py-3"> ${dayjs(v.createdAt).format('DD-MMM-YYYY   hh:mm a')} </td>`;
+                content += `<td class="px-6 py-3"><box-icon color="blue" name="comment-x" style="cursor: pointer" size='sm' onclick="myFunction('${doc.id}')"></box-icon> </td>`;
+                content += `</tr>`;
+            });
+
+            //console.log('all data: ', allData);
+            optionInput.innerHTML = content;
+            //console.log('all data: ', allData[0].id);
+        }
+        getCategory();
+
+        //************************* 
+
+        window.myFunction = (id) => {
+
+            Swal.fire({
+                title: "Do you want to delete that record?",
+                showCancelButton: true,
+                confirmButtonText: "Yes",
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    console.log('Button clicked', id);
+                    deleteDoc(doc(dbFStore, 'category', id));
+                    Swal.fire("Record Deleted!", "", "success");
+                    getCategory();
+                }
+            });
+        };
+
+        //*************************
+
+        const insertData = async (e) => {
+            console.log('inserted');
+            e.preventDefault();
+
+            let textCategory = document.getElementById('txtcat').value;
+            console.log(textCategory);
+            if (textCategory == null || textCategory == '') {
+                // alert('Please enter valid todo. Todo can not be empty.');
+                Swal.fire({
+                    icon: "error",
+                    title: "Category can not be empty.",
+                    text: "Please enter a valid category!",
+                    //footer: '<a href="">Why do I have this issue?</a>'
+                });
+            }
+            else {
+                try {
+                    const docRef = await addDoc(collection(dbFStore, "category"), {
+                        todo: textCategory,
+                        createdAt: Date.now(),
+                    });
+                    console.log("Document written with ID: ", docRef.id);
+                    document.getElementById('txtcat').value = '';
+
+                    Swal.fire({
+                        title: "Category Inserted!",
+                        text: "Category has been inserted successfully in database",
+                        icon: "success"
+                    });
+                    getCategory();
+                } catch (e) {
+                    console.error("Error adding document: ", e);
+                }
+            }
+        }
+        document.getElementById('btnInsert').addEventListener('click', insertData);
+
+    </script>
+
+
+</body>
+
+</html>

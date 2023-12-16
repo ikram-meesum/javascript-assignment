@@ -1,0 +1,291 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.20/dist/sweetalert2.all.min.js"></script>
+    <link href="
+https://cdn.jsdelivr.net/npm/sweetalert2@11.7.20/dist/sweetalert2.min.css
+" rel="stylesheet">
+
+    <script src="https://unpkg.com/boxicons@2.1.4/dist/boxicons.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
+    <script src="./amagiloader.js"></script>
+
+</head>
+
+<body>
+    <header class="flex items-center justify-between py-4 shadow-lg bg-slate-900 text-white">
+        <div>
+            <a href="/">
+                <div class="flex items-center justify-between">
+                    <div class="text-2xl font-semibold sm:block ml-10">dashboard</div>
+                </div>
+            </a>
+        </div>
+        <div class="flex items-center space-x-4 leading-5 sm:space-x-6 mr-10">
+            <a class="font-medium sm:block text-white border-white" href="/dashboard/category.html">Category</a>
+            <a class="font-medium sm:block text-white" href="/dashboard/items.html">Items</a>
+            <!-- <a class="font-medium sm:block text-white" href="/projects">Projects</a>
+            <a class="font-medium sm:block text-white" href="/about">About</a> -->
+        </div>
+    </header>
+    <!-- END NAVBAR -->
+
+
+
+    <section class="mx-10">
+        <div class="mt-10 mb-8 flex justify-between">
+            <h3 class="text-slate-800 text-3xl">All Items</h3>
+            <div class="flex justify-between">
+                <p class="mt-2 mx-4">Select Category: </p>
+                <select id="category" onchange="selectCategory(this)"
+                    class="py-2 px-4 block w-56 border-2 border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500">
+                </select>
+                <p class="mt-2 mx-4">Items: </p>
+
+                <input type="text" id="txtcat"
+                    class="py-1 px-4 block border-2 border-gray-100 w-56 mr-3 rounded-lg focus:border-blue-500 focus:ring-blue-500"
+                    placeholder="Please enter valid category" />
+                <button class="bg-slate-900 text-white px-5 py-1 rounded-lg" id="btnInsert">Add New</button>
+            </div>
+
+        </div>
+
+
+        <div class="border rounded-lg overflow-hidden shadow-lg">
+            <table class="w-full text-sm text-left rtl:text-right text-gray-500">
+                <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                    <tr class="bg-slate-900 rounded-lg text-white">
+                        <th scope="col" class="px-6 py-3">
+                            Item ID
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Category
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Item Name
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Delete
+                        </th>
+                    </tr>
+                </thead>
+                <tbody id="tbl">
+
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-app.js";
+        //import { onValue } from "https://www.gstatic.com/firebasejs/10.5.2/firebase/database.js";
+        import { getFirestore, collection, addDoc, doc, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAWqTOTFBQDoX_nAf5Xk4ZErtkrQgzFRDg",
+            authDomain: "ikram-test-f26b1.firebaseapp.com",
+            databaseURL: "https://ikram-test-f26b1-default-rtdb.firebaseio.com",
+            projectId: "ikram-test-f26b1",
+            storageBucket: "ikram-test-f26b1.appspot.com",
+            messagingSenderId: "67751504494",
+            appId: "1:67751504494:web:00b82047ef26ccd650d47f",
+            measurementId: "G-9YMT7LJHGT"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const dbFStore = getFirestore(app);
+
+
+        let optionInput = document.getElementById("category");
+
+        let catId = "";
+
+        window.selectCategory = (selectObject) => {
+            catId = selectObject.value;
+            console.log('event fired:', catId);
+            console.log('index: ', selectObject.selectedIndex);
+        }
+
+        let rowData = document.getElementById("tbl");
+
+        const getJoinData = async () => {
+            AmagiLoader.show();
+            const docItem = await getDocs(collection(dbFStore, 'items'));
+
+            let allItemData = [];
+            let allCategoryData = [];
+
+            await docItem.forEach((doc, index) => {
+                let v = doc.data();
+                //let catId = v.catId;                
+                allItemData.push({ ...doc.data(), iId: doc.id });
+            });
+            //console.log('all item data :', allItemData);
+
+            //**************** category array *************
+
+            const docSnap = await getDocs(collection(dbFStore, 'category'));
+            await docSnap.forEach((doc, index) => {
+                let v = doc.data();
+                allCategoryData.push({ ...doc.data(), cid: doc.id });
+            })
+            //console.log('all category data: ', allCategoryData);
+
+            let search = '';
+            let allData = [];
+            let obj2 = {}
+            let c = '';
+            let it = '';
+            let itname = '';
+            let catname = '';
+            let row = "";
+
+            for (let i = 0; i < allCategoryData.length; i++) {
+                for (let j = 0; j < allItemData.length; j++) {
+                    //console.log(allCategoryData[i], allItemData[j]);
+                    c = allCategoryData[i].cid;
+                    it = allItemData[j].catId;
+                    //console.log('c:', c, "it", it);
+
+                    if (c == it) {
+                        //console.log('id matched:');
+                        obj2 = { ...allCategoryData[i], ...allItemData[j] }
+                        allData.push(obj2);
+                    } else {
+                        //console.log('not matched');
+                    }
+                }
+            }
+            console.log('reslt :', allData);
+            AmagiLoader.hide();
+
+            for (let x in allData) {
+                //text += person[x];
+                //console.log('x :', allData[x].itemName);
+                row += `<tr class="bg-white border-b hover:bg-gray-100 odd:bg-white even:bg-gray-50">`;
+                row += `<td class="px-6 py-3"> ${allData[x].iId} </td>`;
+                row += `<td class="px-6 py-2 font-medium text-gray-900"> ${allData[x].todo} </td>`;
+                row += `<td class="px-6 py-3"> ${allData[x].itemName} </td>`;
+                row += `<td class="px-6 py-3"><box-icon color="blue" name="comment-x" style="cursor: pointer" size='sm' onclick="myFunction('${allData[x].iId}')"></box-icon> </td>`;
+                row += `</tr>`;
+            }
+            rowData.innerHTML = row;
+
+        }
+        getJoinData();
+
+        //********************
+
+        // window.myFunction = (id) => {
+        //     Swal.fire({
+        //         title: "Do you want to delete that item?",
+        //         showCancelButton: true,
+        //         confirmButtonText: "Yes",
+        //     }).then((result) => {
+        //         if (result.isConfirmed) {
+        //             console.log('Button clicked', id);
+        //             deleteDoc(doc(dbFStore, 'items', id));
+        //             Swal.fire("Record Deleted!", "Item deleted successfully.", "success");
+        //             getJoinData();
+        //         }
+        //     });
+        // };
+
+
+        const getCategory = async () => {
+            //const docRef = getDoc(dbFStore, 'todos', 'bEd57Ukqor3EPXRbQmaU');
+            const docSnap = await getDocs(collection(dbFStore, 'category'));
+
+            var content = '';
+            content += `<option value="Please Select">Please Select</option>`;
+
+            await docSnap.forEach((doc, index) => {
+                //console.log('ind: ', index);
+                let v = doc.data();
+                //allData.push({ ...doc.data(), id: doc.id });
+                content += `<option value="${doc.id}">${v.todo}</option>`;
+            });
+            optionInput.innerHTML = content;
+            //console.log('all data: ', allData[0].id);
+        }
+        getCategory();
+
+        //************************* 
+
+        window.myFunction = (id) => {
+
+            Swal.fire({
+                title: "Do you want to delete that item?",
+                showCancelButton: true,
+                confirmButtonText: "Yes",
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    //console.log('Button clicked', id);
+                    deleteDoc(doc(dbFStore, 'items', id));
+                    Swal.fire("Item Deleted!", "Items has been deleted successfully.", "success");
+                    getJoinData();
+                }
+            });
+        };
+
+        //*************************
+
+        const insertData = async (e) => {
+            console.log('inserted');
+            e.preventDefault();
+
+            let textCategory = document.getElementById('txtcat').value;
+            console.log('textCategory', textCategory);
+            if (textCategory == null || textCategory == '') {
+                // alert('Please enter valid todo. Todo can not be empty.');
+                Swal.fire({
+                    icon: "error",
+                    title: "Item can not be empty.",
+                    text: "Please enter a valid item!",
+                    //footer: '<a href="">Why do I have this issue?</a>'
+                });
+            }
+            else {
+                try {
+                    if (catId == null || catId == '' || catId == 'Please Select') {
+                        alert('Please select a category');
+                    }
+                    else {
+                        const docRef = await addDoc(collection(dbFStore, "items"), {
+                            itemName: textCategory,
+                            catId: catId,
+                            createdAt: Date.now(),
+                        });
+                        console.log("Inserted ID: ", docRef.id);
+                        document.getElementById('txtcat').value = '';
+
+                        Swal.fire({
+                            title: "Item Inserted!",
+                            text: "Item has been inserted successfully in database",
+                            icon: "success"
+                        });
+                        getJoinData();
+                    }
+                    //getCategory();
+                } catch (e) {
+                    console.error("Error adding document: ", e);
+                }
+            }
+        }
+        document.getElementById('btnInsert').addEventListener('click', insertData);
+        // document.getElementsByTagName('body', getJoinData());
+
+
+
+
+
+    </script>
+
+</body>
+
+</html>
