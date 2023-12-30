@@ -1,0 +1,192 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="./amagiloader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.20/dist/sweetalert2.all.min.js"></script>
+  <link href="
+https://cdn.jsdelivr.net/npm/sweetalert2@11.7.20/dist/sweetalert2.min.css
+" rel="stylesheet">
+
+<script src="https://unpkg.com/boxicons@2.1.4/dist/boxicons.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
+
+</head>
+<body>
+    <header class="flex items-center justify-between py-4 bg-slate-900 text-white">
+        <div>
+            <a href="/">
+                <div class="flex items-center justify-between">
+                    <div class="text-2xl font-semibold sm:block ml-10">Todo Application using firebase</div>
+                </div>
+            </a>
+        </div>
+        <div class="flex items-center space-x-4 leading-5 sm:space-x-6 mr-10">
+            <!-- <a class="font-medium sm:block text-white border-white" href="/dashboard/category.html">Logout</a> -->
+            <!-- <a class="font-medium sm:block text-white" href="/dashboard/items.html">Items</a> -->
+            <!-- <a class="font-medium sm:block text-white" href="/projects">Projects</a>
+            <a class="font-medium sm:block text-white" href="/about">About</a> -->
+        </div>
+    </header>
+    <!-- END NAVBAR -->
+
+    <section class="mx-10">
+        <div class="mt-10 mb-4 flex justify-between">
+            <h3 class="text-slate-800 text-3xl">All Todos</h3>
+            <div class="flex justify-between">
+                <input type="text" id="txtcat"
+                    class="py-2 px-4 block border-2 border-gray-100 w-56 mr-3 rounded-lg focus:border-blue-500 focus:ring-blue-500"
+                    placeholder="Please enter valid todo" />
+                <button class="bg-slate-900 text-white px-5 py-1 rounded-lg" id="btnInsert">Add Todo</button>
+            </div>
+        </div>
+
+
+        <div class="border rounded-lg overflow-hidden shadow-lg">
+            <table class="w-full text-sm text-left rtl:text-right text-gray-500">
+                <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                    <tr class="bg-slate-900 rounded-lg text-white">
+                        <th scope="col" class="px-6 py-3">
+                            Todo ID
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Todo Name
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Created At
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Delete
+                        </th>
+                    </tr>
+                </thead>
+                <tbody id="tbl">
+
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-app.js";
+        //import { onValue } from "https://www.gstatic.com/firebasejs/10.5.2/firebase/database.js";
+        import { getFirestore, collection, addDoc, doc, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAWqTOTFBQDoX_nAf5Xk4ZErtkrQgzFRDg",
+            authDomain: "ikram-test-f26b1.firebaseapp.com",
+            databaseURL: "https://ikram-test-f26b1-default-rtdb.firebaseio.com",
+            projectId: "ikram-test-f26b1",
+            storageBucket: "ikram-test-f26b1.appspot.com",
+            messagingSenderId: "67751504494",
+            appId: "1:67751504494:web:00b82047ef26ccd650d47f",
+            measurementId: "G-9YMT7LJHGT"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const dbFStore = getFirestore(app);
+
+
+        let optionInput = document.getElementById("tbl");
+
+        const getCategory = async () => {
+            AmagiLoader.show();
+            //const docRef = getDoc(dbFStore, 'todos', 'bEd57Ukqor3EPXRbQmaU');
+            const docSnap = await getDocs(collection(dbFStore, 'todos'));
+            console.log('len :', await docSnap.length);
+
+            // onValue(docSnap, (snapshot) => {
+            //     const data = snapshot.val();
+            //     console.log('real time: ', data);
+            //     //updateStarCount(postElement, data);
+            // });
+
+            var content = '';
+
+            await docSnap.forEach((doc, index) => {
+                //console.log('ind: ', index);
+                let v = doc.data();
+                //allData.push({ ...doc.data(), id: doc.id });
+
+                content += `<tr class="bg-white border-b hover:bg-gray-100 odd:bg-white even:bg-gray-50">`;
+                content += `<td class="px-6 py-3"> ${doc.id} </td>`;
+                content += `<td class="px-6 py-2 font-medium text-gray-900"> ${v.todo} </td>`;
+                content += `<td class="px-6 py-3"> ${dayjs(v.createdAt).format('DD-MMM-YYYY   hh:mm a')} </td>`;
+                content += `<td class="px-6 py-3"><box-icon color="blue" name="comment-x" style="cursor: pointer" size='sm' onclick="myFunction('${doc.id}')"></box-icon> </td>`;
+                content += `</tr>`;
+            });
+
+            //console.log('all data: ', allData);
+            AmagiLoader.hide();
+            optionInput.innerHTML = content;
+            //console.log('all data: ', allData[0].id);
+        }
+        getCategory();
+
+
+        // INSERT TODOS IN DATABASE
+
+        const insertData = async (e) => {
+            console.log('inserted');
+            e.preventDefault();
+
+            let textCategory = document.getElementById('txtcat').value;
+            console.log(textCategory);
+            if (textCategory == null || textCategory == '') {
+                // alert('Please enter valid todo. Todo can not be empty.');
+                Swal.fire({
+                    icon: "error",
+                    title: "Category can not be empty.",
+                    text: "Please enter a valid category!",
+                    //footer: '<a href="">Why do I have this issue?</a>'
+                });
+            }
+            else {
+                try {
+                    const docRef = await addDoc(collection(dbFStore, "todos"), {
+                        todo: textCategory,
+                        createdAt: Date.now(),
+                    });
+                    console.log("Document written with ID: ", docRef.id);
+                    document.getElementById('txtcat').value = '';
+
+                    Swal.fire({
+                        title: "Todo Inserted!",
+                        text: "Todo has been inserted successfully in database",
+                        icon: "success"
+                    });
+                    getCategory();
+                } catch (e) {
+                    console.error("Error adding document: ", e);
+                }
+            }
+        }
+        document.getElementById('btnInsert').addEventListener('click', insertData);
+
+        // Delete todo functionality
+
+        window.myFunction = (id) => {
+            //AmagiLoader.show();
+            Swal.fire({
+                title: "Do you want to delete that record?",
+                showCancelButton: true,
+                confirmButtonText: "Yes",
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    console.log('Button clicked', id);
+                    deleteDoc(doc(dbFStore, 'todos', id));
+                    Swal.fire("Todo Deleted!", "", "success");
+                    getCategory();
+                    //AmagiLoader.hide();
+                }
+            });
+        };
+
+        //*************************
+    </script>
+
+</body>
+</html>
